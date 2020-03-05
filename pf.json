@@ -1,0 +1,24 @@
+{
+    "base": "root://cmseos.fnal.gov//store/user/drankin/htautau_training",
+    "samples": [
+        {
+            "name": "QCD",
+            "samples": ["QCD_HT1000to1500_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8-pancakes-02_RunIISummer19UL17MiniAOD-106X_v6-v2","QCD_HT1500to2000_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8-pancakes-02_RunIISummer19UL17MiniAOD-106X_v6-v2","QCD_HT2000toInf_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8-pancakes-02_RunIISummer19UL17MiniAOD-106X_v6-v2","QCD_HT700to1000_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8-pancakes-02_RunIISummer19UL17MiniAOD-106X_v6-v2"]
+        },
+        {
+            "name": "GluGluHToTauTau_user",
+            "samples": ["GluGluHTauTau_13TeV_user"]
+        }
+    ],
+    "features": [
+            "PF_pt","PF_eta","PF_phi","PF_q","PF_dz","PF_dxy","PF_dxyerr","PF_pup","PF_pupnolep","PF_id"
+            ],
+    "altfeatures": [
+            "sv_dlen", "sv_dlenSig", "sv_dxy", "sv_dxySig", "sv_chi2", "sv_pAngle", "sv_x", "sv_y", "sv_z", "sv_pt", "sv_mass", "sv_eta", "sv_phi"
+            ],
+
+    "weight": ["fj_pt", "fj_msd"],
+    "cut": "fj_pt>300 && fj_msd>40",
+    "ss_vars": ["fj_n2b1","fj_deepTagZqq"],
+    "!decayType":"fj_decayType"
+}
