@@ -18,7 +18,7 @@ import matplotlib
 matplotlib.use('agg')
 #%matplotlib inline
 import matplotlib.pyplot as plt
-from tensorflow.keras.layers import Input, Dense, Dropout, Activation, concatenate, BatchNormalization, GRU, Add
+from tensorflow.keras.layers import Input, Dense, Dropout, Activation, concatenate, BatchNormalization, GRU, Add, Conv1D, Conv2D, Concatenate
 from tensorflow.keras.models import Model 
 from tensorflow.keras.regularizers import l1
 from sklearn.model_selection import train_test_split
@@ -193,6 +193,36 @@ def conditional_loss_function(y_true, y_pred):
     return categorical_crossentropy(y_true, y_pred)*(1-y_true[:,0])
 
 def model(Inputs,Inputs_alt,X_train,Xalt_train,Y_train,NPARTS=20,NSV=5):
+    CLR=0.01
+    L1R=0.0001
+    print(Inputs)
+    print(Inputs_alt)
+
+    CSTRIDE = 1
+    CSIZE = int(Inputs.shape[1]-CSTRIDE*(Inputs_alt.shape[1]-1))
+    print(CSIZE)
+
+    conv = Conv1D(100,kernel_size=CSIZE,activation='relu',name='conv_base',padding='valid',activity_regularizer=l1(L1R),input_shape=Inputs.shape[1:])(Inputs)
+    added = Concatenate(axis=2)([conv, Inputs_alt])
+
+    gru_alt = GRU(100,activation='relu',recurrent_activation='hard_sigmoid',name='gru_base_alt',activity_regularizer=l1(L1R))(added)
+    dense_alt   = Dense(100, activation='relu',activity_regularizer=l1(L1R))(gru_alt)
+    norm_alt    = BatchNormalization(momentum=0.6, name='dense4_bnorm_alt')  (dense_alt)
+
+    dense   = Dense(50, activation='relu',activity_regularizer=l1(L1R))(norm_alt)
+    norm    = BatchNormalization(momentum=0.6, name='dense5_bnorm')  (dense)
+    dense   = Dense(20, activation='relu',activity_regularizer=l1(L1R))(norm)
+    dense   = Dense(10, activation='relu',activity_regularizer=l1(L1R))(dense)
+    out     = Dense(1, activation='sigmoid',activity_regularizer=l1(L1R))(norm)
+    
+    classifier = Model(inputs=[Inputs,Inputs_alt], outputs=[out])
+    lossfunction = 'binary_crossentropy'
+    classifier.compile(loss=[lossfunction], optimizer=Adam(CLR), metrics=['accuracy'])
+    models={'classifier' : classifier}
+
+    return models
+
+def model_2grus(Inputs,Inputs_alt,X_train,Xalt_train,Y_train,NPARTS=20,NSV=5):
     CLR=0.001
     L1R=0.00001
     print(Inputs)
